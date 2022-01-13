@@ -6,6 +6,8 @@ namespace _1st_task
     {
         public readonly int Size;
         public int[] diagonal;
+        public int i_index;
+        public int j_index;
         
         public SquareMatrix(int Size, params int[] array)
         {
@@ -25,11 +27,11 @@ namespace _1st_task
             }
         }
 
-        public void PrintArray()
+        public void PrintDiagonal()
         {
             if (Size == 0)
             {
-                Console.WriteLine("No items in the array");
+                Console.WriteLine("No items on the diagonal!");
             }
             else
             {
@@ -46,7 +48,7 @@ namespace _1st_task
             int sum = 0;
             if (Size == 0)
             {
-                Console.WriteLine("No items on the diagonal");
+                Console.WriteLine("No items on the diagonal!");
                 return 0;
             }
             else
@@ -59,9 +61,20 @@ namespace _1st_task
             }
         }
 
-        public static void Indexer()
+        public int this[int i, int j]
         {
-
+            get
+            {
+                if (i != j)
+                {
+                    return 0;
+                }
+                if (i < 0 || i >= Size || j < 0 || j >= Size)
+                {
+                    throw new System.Exception("Indexes out of bounds.");
+                }
+                return diagonal[i];
+            }
         }
 
         public override string ToString()
@@ -99,12 +112,33 @@ namespace _1st_task
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
-        }
+            var temp = obj as SquareMatrix;
 
-        public int GetSize()
-        {
-            return Size;
+            if (obj == null)
+            {
+                return false;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            if (this.diagonal.Length != temp.diagonal.Length)
+            {
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < temp.diagonal.Length; i++)
+                {
+                    if (temp.diagonal[i] != this.diagonal[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         public override int GetHashCode()
@@ -115,10 +149,20 @@ namespace _1st_task
 
     static class ExtensionOperation
     { 
-        public static SquareMatrix Add(this SquareMatrix squareMatrix, SquareMatrix FirstMatrix, SquareMatrix SecondMatrix)
+        public static SquareMatrix Add(this SquareMatrix squareMatrix, SquareMatrix SecondMatrix)
         {
-            int getSize = FirstMatrix.GetSize() + SecondMatrix.GetSize();
-            var result = new SquareMatrix(getSize);
+            int getSize = squareMatrix.Size + SecondMatrix.Size;
+            int[] newDiagonal = new int[getSize];
+            for (int i = 0; i < squareMatrix.Size; i++)
+            {
+                newDiagonal[i] = squareMatrix.diagonal[i];
+            }
+            for (int i = 0; i < SecondMatrix.Size; i++)
+            {
+                newDiagonal[i + squareMatrix.Size] = SecondMatrix.diagonal[i];
+            }
+
+            var result = new SquareMatrix(getSize, newDiagonal);
             return result;
         }
     }
@@ -127,10 +171,20 @@ namespace _1st_task
     {
         static void Main()
         {
-            SquareMatrix a = new(Size:4, 49, 234, 3566, 4);
-            a.PrintArray();
-            Console.WriteLine(a.Track());
-            Console.WriteLine(a.ToString());
+            SquareMatrix first_matrix = new(Size:4, 49, 234, 3566, 4);
+            first_matrix.PrintDiagonal();
+            Console.WriteLine(first_matrix.Track());
+            Console.WriteLine(first_matrix.ToString());
+            SquareMatrix second_matrix = new(Size:5, 38, 44, 12, 3, 5);
+            second_matrix.PrintDiagonal();
+            SquareMatrix third_matrix = first_matrix.Add(second_matrix);
+            third_matrix.PrintDiagonal();
+            Console.WriteLine(third_matrix.Equals(third_matrix));
+            SquareMatrix fourth_matrix = new(Size:5, 38, 44, 12, 3, 6);
+            Console.WriteLine(fourth_matrix.Equals(second_matrix));
+
+            Console.WriteLine(first_matrix[2, 0]);
+            Console.WriteLine(first_matrix[1, 1]);
         }
     }
 }
